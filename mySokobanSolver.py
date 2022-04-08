@@ -73,9 +73,10 @@ def taboo_cells(warehouse):
        a '#' and the taboo cells marked with a 'X'.  
        The returned string should NOT have marks for the worker, the targets,
        and the boxes.  
-    '''
-    ##         "INSERT YOUR CODE HERE"    
-     ##         "INSERT YOUR CODE HERE"
+    '''    
+    ##         Rule 1
+
+
     walls_list = []
     walls_list = warehouse.walls.copy()
     taboo_list = []
@@ -88,12 +89,14 @@ def taboo_cells(warehouse):
                     if((x, y) not in walls_list):
                         #check not a wall
                         #print(f"{x} , {y} has wall left and top")
-                        taboo_list.append((x,y))
+                        if(in_warehouse(warehouse,x,y)):
+                            taboo_list.append((x,y))
                 #check down
                 if((x, y+1) in walls_list):
                      if((x, y) not in walls_list):
                         #check not a wall
-                        taboo_list.append((x,y))
+                        if(in_warehouse(warehouse,x,y)):
+                            taboo_list.append((x,y))
 
             if((x + 1, y) in walls_list):
                 #check right
@@ -101,12 +104,14 @@ def taboo_cells(warehouse):
                     #check top
                     if((x,y) not in walls_list):
                         #check not a wall
-                        taboo_list.append((x,y))
+                        if(in_warehouse(warehouse,x,y)):
+                            taboo_list.append((x,y))
                 if((x, y+1) in walls_list):
                     #check down
                     if((x,y) not in walls_list):
                         #check not a wall
-                        taboo_list.append((x,y))
+                        if(in_warehouse(warehouse,x,y)):
+                            taboo_list.append((x,y))
     
     #check for walls between taboo points 
     taboo_list_copy = taboo_list.copy()
@@ -167,6 +172,32 @@ def taboo_cells(warehouse):
     print(wh_string)
     print("\n")
     return(wh_string)    
+
+def in_warehouse(warehouse, x, y):
+    rows = warehouse.ncols
+    cols = warehouse.nrows
+
+    wall_up = 0
+    wall_down = 0
+    wall_left = 0
+    wall_right = 0
+
+    for i in range(x, rows):
+        if((i, y) in warehouse.walls):
+             wall_right += 1
+    for i in range(0, x):
+        if((i, y) in warehouse.walls):
+             wall_left += 1
+    for i in range(y, cols):
+        if((x, i) in warehouse.walls):
+             wall_down += 1
+    for i in range(0, y):
+        if((x, i) in warehouse.walls):
+           wall_up += 1
+
+    if(wall_right == 0 or wall_left == 0 or wall_up == 0 or wall_right == 0):
+        return False   
+    return True
 
 def taboo_helper_0(point1, point2, taboo_list):
      taboo_list_copy = taboo_list.copy()
@@ -285,4 +316,6 @@ if __name__ == "__main__":
     print(f"cols {wh.ncols}")
     print(f"rows {wh.nrows}")
     taboo_cells(wh)
+    in_house = in_warehouse(wh,1,6)
+    print(f"{in_house}")
     print(wh)
