@@ -76,7 +76,6 @@ def taboo_cells(warehouse):
     '''    
     ##         Rule 1
 
-
     walls_list = []
     walls_list = warehouse.walls.copy()
     taboo_list = []
@@ -89,13 +88,13 @@ def taboo_cells(warehouse):
                     if((x, y) not in walls_list):
                         #check not a wall
                         #print(f"{x} , {y} has wall left and top")
-                        if(in_warehouse(warehouse,x,y)):
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)):      
                             taboo_list.append((x,y))
                 #check down
                 if((x, y+1) in walls_list):
                      if((x, y) not in walls_list):
                         #check not a wall
-                        if(in_warehouse(warehouse,x,y)):
+                       if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
                             taboo_list.append((x,y))
 
             if((x + 1, y) in walls_list):
@@ -104,13 +103,13 @@ def taboo_cells(warehouse):
                     #check top
                     if((x,y) not in walls_list):
                         #check not a wall
-                        if(in_warehouse(warehouse,x,y)):
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
                             taboo_list.append((x,y))
                 if((x, y+1) in walls_list):
                     #check down
                     if((x,y) not in walls_list):
                         #check not a wall
-                        if(in_warehouse(warehouse,x,y)):
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
                             taboo_list.append((x,y))
     
     #check for walls between taboo points 
@@ -118,11 +117,12 @@ def taboo_cells(warehouse):
     for z in taboo_list:
         for x in taboo_list:
            if(z[0] == x[0] and z != x):
-               #print(f"checking {z} against {x}")
+               print(f"checking {z} against {x}")
                l_count = 0
                r_count = 0
                d_count = 0
                u_count = 0
+               
                for y in range(z[1], x[1]):
                     #print(f"path ({z[0]},{y})")
                     #left wall
@@ -131,6 +131,10 @@ def taboo_cells(warehouse):
                     #right wall
                     if((z[0]+1, y) in walls_list):
                         r_count += 1
+                    if(target_warehouse(warehouse, z[0], y)):
+                        l_count = 0
+                        r_count = 0
+                        print("test")
                     if(l_count == (x[1]-z[1])):
                         #print(f"we have a n x between {z} and {x}")
                         taboo_list_copy = taboo_helper_0(z,x,taboo_list_copy)
@@ -147,12 +151,18 @@ def taboo_cells(warehouse):
                        u_count += 1
                    if((y, z[1]-1) in walls_list):
                        d_count += 1
+                   if(target_warehouse(warehouse, y, z[1])):
+                        u_count = 0
+                        d_count = 0
+                        print("test")
                    if(d_count == (x[0]-z[0])):
                         #print(f"we have a n x between {z} and {x}")
                         taboo_list_copy = taboo_helper_1(z,x,taboo_list_copy)
+                        
                    if(u_count == (x[0]-z[0])):
                         #print(f"we have a n x between {z} and {x}")
                         taboo_list_copy = taboo_helper_1(z,x,taboo_list_copy)
+                       
             
 
     ##Do to print new warehouse with taboo cells marked X
@@ -172,7 +182,11 @@ def taboo_cells(warehouse):
     print(wh_string)
     print("\n")
     return(wh_string)    
-
+def target_warehouse(warehouse,x,y):
+    for i in range(len(warehouse.targets)):
+        if(warehouse.targets[i] == (x, y)):
+            return True
+    return False
 def in_warehouse(warehouse, x, y):
     rows = warehouse.ncols
     cols = warehouse.nrows
@@ -311,11 +325,11 @@ def solve_weighted_sokoban(warehouse):
 
 if __name__ == "__main__":
     wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_03.txt")
+    wh.load_warehouse("./warehouses/warehouse_19.txt")
     print(dir(wh))
     print(f"cols {wh.ncols}")
     print(f"rows {wh.nrows}")
     taboo_cells(wh)
-    in_house = in_warehouse(wh,1,6)
-    print(f"{in_house}")
+
     print(wh)
+    print(target_warehouse(wh, 4, 4))
