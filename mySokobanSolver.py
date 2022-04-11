@@ -122,7 +122,7 @@ def check_elem_action_seq(warehouse, action_seq):
     
     Important notes:
       - a legal sequence of actions does not necessarily solve the puzzle.
-      - an action is legal even if it pushes a box onto a taboo cell.
+      - an action is legal even if it pushes a box onto a taboo cell.a
         
     @param warehouse: a valid Warehouse object
 
@@ -138,7 +138,118 @@ def check_elem_action_seq(warehouse, action_seq):
                the sequence of actions.  This must be the same string as the
                string returned by the method  Warehouse.__str__()
     '''
-    
+
+    cloned = warehouse.clone
+    boxes = cloned.boxes
+    worker = cloned.worker
+    walls = cloned.walls
+    x,y = worker
+    boxno = 0
+
+    for action in action_seq:
+        if action == "Left":
+            #check if there is a box left of player
+            for box in boxes:
+                boxno += 1
+                if (x-1,y == box):
+                    for wall in walls:
+                        # check if box is going to be pushed into a wall
+                        if(x-2,y == wall):
+                            return print('impossible')
+                        # save coordinate information for box one and player
+                        elif boxno == 1:
+                            b1x,b1y = x-2,y
+                            xnew,ynew = x-1,y
+                            boxno = 0
+                        # save coordinate information for box two and player
+                        else:
+                            b2x,b2y = x-2,y
+                            xnew,ynew = x-1,y
+                            boxno = 0
+                # check if player will go into a wall
+                elif (x-1,y == wall):
+                    return print('impossible')
+                # save coordinate information for player
+                else:
+                    xnew,ynew = x-1,y
+        elif action == "Right":
+            #check if there is a box left of player
+            for box in boxes:
+                boxno += 1
+                if (x+1,y == box):
+                    for wall in walls:
+                        # check if box is going to be pushed into a wall
+                        if(x+2,y == wall):
+                            return print('impossible')
+                        # save coordinate information for box one and player
+                        elif boxno == 1:
+                            b1x,b1y = x+2,y
+                            xnew,ynew = x+1,y
+                            boxno = 0
+                        # save coordinate information for box two and player
+                        else:
+                            b2x,b2y = x+2,y
+                            xnew,ynew = x+1,y
+                            boxno = 0
+                # check if player will go into a wall
+                elif (x+1,y == wall):
+                    return print('impossible')
+                # save coordinate information for player
+                else:
+                    xnew,ynew = x+1,y
+        elif action == "Up":
+            #check if there is a box left of player
+            for box in boxes:
+                boxno += 1
+                if (x,y-1 == box):
+                    for wall in walls:
+                        # check if box is going to be pushed into a wall
+                        if(x,y-2 == wall):
+                            return print('impossible')
+                        # save coordinate information for box one and player
+                        elif boxno == 1:
+                            b1x,b1y = x,y-2
+                            xnew,ynew = x,y-1
+                            boxno = 0
+                        # save coordinate information for box two and player
+                        else:
+                            b2x,b2y = x,y-2
+                            xnew,ynew = x,y-1
+                            boxno = 0
+                # check if player will go into a wall
+                elif (x,y-1 == wall):
+                    return print('impossible')
+                # save coordinate information for player
+                else:
+                    xnew,ynew = x,y-1
+        elif action == "Down":
+            #check if there is a box left of player
+            for box in boxes:
+                boxno += 1
+                if (x,y+1 == box):
+                    for wall in walls:
+                        # check if box is going to be pushed into a wall
+                        if(x,y+2 == wall):
+                            return print('impossible')
+                        # save coordinate information for box one and player
+                        elif boxno == 1:
+                            b1x,b1y = x,y+2
+                            xnew,ynew = x,y+1
+                            boxno = 0
+                        # save coordinate information for box two and player
+                        else:
+                            b2x,b2y = x,y+2
+                            xnew,ynew = x,y+1
+                            boxno = 0
+                # check if player will go into a wall
+                elif (x,y+1 == wall):
+                    return print('impossible')
+                # save coordinate information for player
+                else:
+                    xnew,ynew = x,y+1
+        else:
+            return print("Action is invalid.")
+
     ##         "INSERT YOUR CODE HERE"
     
     raise NotImplementedError()
