@@ -115,16 +115,16 @@ class SokobanPuzzle(search.Problem):
         i_blank = state.index(0)
         L = []  # list of legal actions
          # UP: if blank not on top row, swap it with tile above it
-        if i_blank >= self.nc:
+        if i_blank >= self.ncols:
             L.append('U')
         # DOWN: If blank not on bottom row, swap it with tile below it
-        if i_blank < self.nc*(self.nr-1):
+        if i_blank < self.ncols*(self.nrows-1):
             L.append('D')
         # LEFT: If blank not in left column, swap it with tile to the left
-        if i_blank % self.nc > 0:
+        if i_blank % self.ncols > 0:
             L.append('L')
         # RIGHT: If blank not on right column, swap it with tile to the right
-        if i_blank % self.nc < self.nc-1:
+        if i_blank % self.ncols < self.ncols-1:
             L.append('R')
         return L
         raise NotImplementedError
@@ -141,10 +141,10 @@ class SokobanPuzzle(search.Problem):
         assert action in self.actions(state)  # defensive programming!
         # UP: if blank not on top row, swap it with tile above it
         if action == 'U':
-            i_swap = i_blank - self.nc
+            i_swap = i_blank - self.ncols
         # DOWN: If blank not on bottom row, swap it with tile below it
         if action == 'D':
-            i_swap = i_blank + self.nc
+            i_swap = i_blank + self.ncols
         # LEFT: If blank not in left column, swap it with tile to the left
         if action == 'L':
             i_swap = i_blank - 1
