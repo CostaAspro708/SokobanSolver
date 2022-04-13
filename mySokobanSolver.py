@@ -158,6 +158,10 @@ def check_elem_action_seq(warehouse, action_seq):
                 elif (x-1, y == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
+                    # check if box collides with box
+                    for box in boxes:
+                        if(x-2,y == box):
+                            return print('impossible')
                     # check if box collides with wall
                     for wall in walls:
                         if(x-2,y == wall):
@@ -184,6 +188,10 @@ def check_elem_action_seq(warehouse, action_seq):
                 elif (x+1, y == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
+                    # check if box collides with box
+                    for box in boxes:
+                        if(x+2,y == box):
+                            return print('impossible')
                     # check if box collides with wall
                     for wall in walls:
                         if(x+2,y == wall):
@@ -210,6 +218,10 @@ def check_elem_action_seq(warehouse, action_seq):
                 elif (x, y-1 == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
+                    # check if box collides with box
+                    for box in boxes:
+                        if(x,y-2 == box):
+                            return print('impossible')
                     # check if box collides with wall
                     for wall in walls:
                         if(x,y-2 == wall):
@@ -236,7 +248,11 @@ def check_elem_action_seq(warehouse, action_seq):
                 elif (x, y+1 == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
-                    # check if box collides with wall
+                    # check if box collides with box
+                    for box in boxes:
+                        if(x,y+2 == box):
+                            return print('impossible')
+                    # check if box collides with wall   
                     for wall in walls:
                         if(x,y+2 == wall):
                             return print('impossible')
