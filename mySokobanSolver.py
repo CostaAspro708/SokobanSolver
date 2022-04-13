@@ -170,6 +170,7 @@ def check_elem_action_seq(warehouse, action_seq):
                 boxes[boxno] = x-2,y
                 x,y = x-1,y
                 boxno = 0
+                break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -200,6 +201,7 @@ def check_elem_action_seq(warehouse, action_seq):
                 boxes[boxno] = x+2,y
                 x,y = x+1,y
                 boxno = 0
+                break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -230,6 +232,7 @@ def check_elem_action_seq(warehouse, action_seq):
                 boxes[0] = x,y-2
                 x,y = x,y-1
                 boxno = 0
+                break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -260,6 +263,7 @@ def check_elem_action_seq(warehouse, action_seq):
                 boxes[boxno] = x,y+2
                 x,y = x,y+1
                 boxno = 0
+                break
 
             if boxFound != True:
                 # check if player collides with wall
