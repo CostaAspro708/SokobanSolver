@@ -147,6 +147,7 @@ def check_elem_action_seq(warehouse, action_seq):
     boxno = 0
     boxFound = False
 
+
     for action in action_seq:
         #check which action is taken
         if action == "Left":
@@ -155,6 +156,7 @@ def check_elem_action_seq(warehouse, action_seq):
                 #if box not found add to counter
                 if ((x-1,y) != box[boxno]):
                     boxno += 1
+                    print(boxno)
                 elif ((x-1, y) == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
@@ -167,10 +169,10 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x-2,y) == wall):
                             return print('impossible')
                 # save coord information for box one and player
-                boxes[boxno] = (x-2,y)
-                (x,y) = (x-1,y)
-                boxno = 0
-                break
+                    boxes[boxno] = (x-2,y)
+                    (x,y) = (x-1,y)
+                    boxno = 0
+                    break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -179,6 +181,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         return print('impossible')
             # if no wall hit detected record coords
             (x,y) = (x-1,y)
+            boxno = 0
 
         elif action == "Right":
             #check for boxes next to worker
@@ -186,7 +189,6 @@ def check_elem_action_seq(warehouse, action_seq):
                 #if box not found add to counter
                 if ((x+1,y) != box[boxno]):
                     boxno += 1
-                    print('entered')
                 elif ((x+1, y) == box[boxno]):
                     # if box found change to true no box statement skips
                     boxFound = True
@@ -199,20 +201,19 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x+2,y) == wall):
                             return print('impossible2')
                 # save coord information for box one and player
-                boxes[boxno] = (x+2,y)
-                (x,y) = (x+1,y)
-                boxno = 0
-                break
+                    boxes[boxno] = (x+2,y)
+                    (x,y) = (x+1,y)
+                    boxno = 0
+                    break
 
             if boxFound != True:
                 # check if player collides with wall
                 for wall in walls:
                     if((x+1,y) == wall):
-                        print((x,y))
-                        print(wall)
                         return print('impossible3')
             # if no wall hit detected record coords
             (x,y) = (x+1,y)
+            boxno = 0
 
         elif action == "Up":
             #check for boxes next to worker
@@ -232,10 +233,10 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x,y-2) == wall):
                             return print('impossible')
                 # save coord information for box one and player
-                boxes[0] = (x,y-2)
-                (x,y) = (x,y-1)
-                boxno = 0
-                break
+                    boxes[0] = (x,y-2)
+                    (x,y) = (x,y-1)
+                    boxno = 0
+                    break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -244,6 +245,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         return print('impossible')
             # if no wall hit detected record coords
             (x,y) = (x,y-1)
+            boxno = 0
 
         elif action == "Down":
             #check for boxes next to worker
@@ -263,10 +265,10 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x,y+2) == wall):
                             return print('impossible')
                 # save coord information for box one and player
-                boxes[boxno] = (x,y+2)
-                (x,y) = (x,y+1)
-                boxno = 0
-                break
+                    boxes[boxno] = (x,y+2)
+                    (x,y) = (x,y+1)
+                    boxno = 0
+                    break
 
             if boxFound != True:
                 # check if player collides with wall
@@ -275,6 +277,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         return print('impossible')
             # if no wall hit detected record coords
             (x,y) = (x,y+1)
+            boxno = 0
 
         else:
             return print("Action is invalid.")
@@ -284,10 +287,10 @@ def check_elem_action_seq(warehouse, action_seq):
     output = warehouse.copy(worker, boxes)
     return print(output)
 
-#if __name__ == "__main__":
-#   wh = sokoban.Warehouse()
-#    wh.load_warehouse("./warehouses/warehouse_03.txt")
-#    check_elem_action_seq(wh, ['Right'])
+if __name__ == "__main__":
+    wh = sokoban.Warehouse()
+    wh.load_warehouse("./warehouses/warehouse_03.txt")
+    check_elem_action_seq(wh, ['Up'])
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
