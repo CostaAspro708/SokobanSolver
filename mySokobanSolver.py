@@ -151,6 +151,7 @@ def check_elem_action_seq(warehouse, action_seq):
     for action in action_seq:
         #check which action is taken
         if action == "Left":
+            boxFound = False
             #check for boxes next to worker
             for box in boxes:
                 #if box not found add to counter
@@ -183,6 +184,7 @@ def check_elem_action_seq(warehouse, action_seq):
             boxno = 0
 
         elif action == "Right":
+            boxFound = False
             #check for boxes next to worker
             for box in boxes:
                 #if box not found add to counter
@@ -200,7 +202,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x+2,y) == wall):
                             return print('impossible2')
                 # save coord information for box one and player
-                    box = (x+2,y)
+                    boxes[boxno] = (x+2,y)
                     (x,y) = (x+1,y)
                     boxno = 0
                     break
@@ -214,6 +216,7 @@ def check_elem_action_seq(warehouse, action_seq):
             (x,y) = (x+1,y)
 
         elif action == "Up":
+            boxFound = False
             #check for boxes next to worker
             for box in boxes:
                 #if box not found add to counter
@@ -231,7 +234,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x,y-2) == wall):
                             return print('impossible')
                 # save coord information for box one and player
-                    boxes[0] = (x,y-2)
+                    boxes[boxno] = (x,y-2)
                     (x,y) = (x,y-1)
                     boxno = 0
                     break
@@ -246,6 +249,7 @@ def check_elem_action_seq(warehouse, action_seq):
             boxno = 0
 
         elif action == "Down":
+            boxFound = False
             #check for boxes next to worker
             for box in boxes:
                 #if box not found add to counter
@@ -263,7 +267,7 @@ def check_elem_action_seq(warehouse, action_seq):
                         if((x,y+2) == wall):
                             return print('impossible')
                 # save coord information for box one and player
-                    box = (x,y+2)
+                    boxes[boxno] = (x,y+2)
                     (x,y) = (x,y+1)
                     boxno = 0
                     break
@@ -274,8 +278,8 @@ def check_elem_action_seq(warehouse, action_seq):
                     if((x,y+1) == wall):
                         return print('impossible')
             # if no wall hit detected record coords
-            (x,y) = (x,y+1)
-            boxno = 0
+                (x,y) = (x,y+1)
+                boxno = 0
 
         else:
             return print("Action is invalid.")
@@ -288,7 +292,7 @@ def check_elem_action_seq(warehouse, action_seq):
 if __name__ == "__main__":
     wh = sokoban.Warehouse()
     wh.load_warehouse("./warehouses/warehouse_03.txt")
-    check_elem_action_seq(wh, ['Right','Right'])
+    check_elem_action_seq(wh, ['Right','Up', 'Up','Left', 'Left', 'Left', 'Left', 'Left', 'Down'])
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
