@@ -261,18 +261,26 @@ class SokobanPuzzle(search.Problem):
         """
         worker = warehouse.worker
         L = []
+
+        #Case 1 check walls
         if (worker[0], worker[1]+1) not in warehouse.walls:
+            if not ((worker[0], worker[1]+1) in warehouse.boxes and ((worker[0], worker[1]+1+1) in warehouse.boxes or (worker[0], worker[1]+1+1) in warehouse.walls)):
             #down is not a wall
-            L.append("Down")
+                L.append("Down")
         if (worker[0], worker[1]-1) not in warehouse.walls:
             #up is not a wall
-            L.append("Up")
+            if not ((worker[0], worker[1]-1) in warehouse.boxes and ((worker[0], worker[1]-1-1) in warehouse.boxes or (worker[0], worker[1]-1-1) in warehouse.walls)):
+                L.append("Up")
         if (worker[0]-1, worker[1]) not in warehouse.walls:
             #left is not a wall
-            L.append("Left")
+            if not ((worker[0]-1, worker[1]) in warehouse.boxes and ((worker[0]-1-1, worker[1]) in warehouse.boxes or (worker[0]-1-1, worker[1]) in warehouse.walls)):
+            #down is not a wall
+                L.append("Left")
         if (worker[0]+1, worker[1]) not in warehouse.walls:
             #right is not a wall
-            L.append("Right")
+            if not ((worker[0]+1, worker[1]) in warehouse.boxes and ((worker[0]+1+1, worker[1]) in warehouse.boxes or (worker[0]+1+1, worker[1]) in warehouse.walls)):
+                L.append("Right")
+
         return L
 
     def result(self, warehouse, action):
@@ -514,6 +522,9 @@ if __name__ == "__main__":
     sokoban = SokobanPuzzle(wh)
     print(sokoban.actions(wh))
     print(sokoban.result(wh, "Up"))
+    print(sokoban.actions(wh))
+    print(sokoban.result(wh, "Right"))
+    print(sokoban.actions(wh))
     # print(f"cols {wh.ncols}")
     # print(f"rows {wh.nrows}")
     # taboo_cells(wh)
