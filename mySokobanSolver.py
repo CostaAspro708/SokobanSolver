@@ -29,6 +29,7 @@ Last modified by 2022-03-27  by f.maire@qut.edu.au
 # You have to make sure that your code works with 
 # the files provided (search.py and sokoban.py) as your code will be tested 
 # with these files
+import re
 import search 
 import sokoban
 
@@ -253,7 +254,14 @@ class SokobanPuzzle(search.Problem):
     def __init__(self, warehouse):
         copywarehouse = warehouse.copy()
         copywarehouse.boxes = warehouse.targets
+        #copywarehouse.worker = None
         self.goal = copywarehouse
+
+    def goal_test(self, warehouse):
+        for i in range(len(warehouse.boxes)):
+            if(warehouse.boxes[i] not in self.goal.targets):
+                return False
+        return True
 
     def actions(self, warehouse):
         """
@@ -281,26 +289,42 @@ class SokobanPuzzle(search.Problem):
             #Case 2 check if two boxes or box and wall 
             if not ((worker[0]+1, worker[1]) in warehouse.boxes and ((worker[0]+1+1, worker[1]) in warehouse.boxes or (worker[0]+1+1, worker[1]) in warehouse.walls)):
                 L.append("Right")
-
         return L
 
     def result(self, warehouse, action):
         cloned_warehouse = warehouse.copy()
         worker = warehouse.worker
 
+        assert action in self.actions(warehouse)
         #Check action then move worker.
         if action == "Down":
             if(action in self.actions(warehouse)):
                 warehouse.worker = (worker[0], worker[1]+1)
+                #If worker hits box move box
+                if((worker[0], worker[1]+1) in warehouse.boxes):
+                    box_index = warehouse.boxes.index((worker[0], worker[1]+1))
+                    warehouse.boxes[box_index] = (worker[0], worker[1]+1+1)
         if action == "Up":
             if(action in self.actions(warehouse)):
                 warehouse.worker = (worker[0], worker[1]-1)
+                 #If worker hits box move box
+                if((worker[0], worker[1]-1) in warehouse.boxes):
+                    box_index = warehouse.boxes.index((worker[0], worker[1]-1))
+                    warehouse.boxes[box_index] = (worker[0], worker[1]-1-1)
         if action == "Left":
             if(action in self.actions(warehouse)):
                 warehouse.worker = (worker[0]-1, worker[1])
+                 #If worker hits box move box
+                if((worker[0]-1, worker[1]) in warehouse.boxes):
+                    box_index = warehouse.boxes.index((worker[0]-1, worker[1]))
+                    warehouse.boxes[box_index] = (worker[0]-1-1, worker[1])
         if action == "Right":
             if(action in self.actions(warehouse)):
                 warehouse.worker = (worker[0]+1, worker[1])
+                #If worker hits box move box
+                if((worker[0]-1, worker[1]) in warehouse.boxes):
+                    box_index = warehouse.boxes.index((worker[0]+1, worker[1]))
+                    warehouse.boxes[box_index] = (worker[0]+1+1, worker[1])
         return warehouse
 
 
@@ -515,20 +539,55 @@ def solve_weighted_sokoban(warehouse):
 
 if __name__ == "__main__":
     wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_19.txt")
+    wh.load_warehouse("./warehouses/warehouse_01.txt")
     
     solve_weighted_sokoban(wh)
-
+    wh.worker = (1,5)
     print(dir(wh))
-    print(wh.worker)
+    wh.boxes[1] = (2,1)
+    wh.boxes[0] = (1,4)
     print(wh)
     sokoban = SokobanPuzzle(wh)
-    print(sokoban.actions(wh))
+    print("--------------------")
+    print(sokoban.goal_test(wh))
     print(sokoban.result(wh, "Up"))
-    print(sokoban.actions(wh))
-    print(sokoban.result(wh, "Right"))
-    print(sokoban.actions(wh))
-    # print(f"cols {wh.ncols}")
+
+
+
+
+# L
+# U
+# R
+# R
+# R
+# D
+# L
+# U
+# L
+# L
+# D
+# D
+# R
+# U
+# L
+# U
+# R
+# U
+# U
+# L
+# D
+# R
+# D
+# D
+# R
+# R
+# U
+# L
+# D
+# L
+# U
+# U
+    print(sokoban.goal_test(wh))
     # print(f"rows {wh.nrows}")
     # taboo_cells(wh)
 
