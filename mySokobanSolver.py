@@ -43,7 +43,10 @@ def my_team():
     
     '''
 #    return [ (1234567, 'Ada', 'Lovelace'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
-    return [(10464174, 'Constantine', 'Aspromourgos'), (10748849, 'Calum', 'Hathaway'), (10789511, 'Hari', 'Markonda Patnaikuni')]
+ CheckElements
+     return [(10464174, 'Constantine', 'Aspromourgos'), (10748849, 'Calum', 'Hathaway'), (10789511, 'Hari', 'Markonda Patnaikuni')]
+
+solve_sokoban
     raise NotImplementedError()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -73,9 +76,157 @@ def taboo_cells(warehouse):
        a '#' and the taboo cells marked with a 'X'.  
        The returned string should NOT have marks for the worker, the targets,
        and the boxes.  
-    '''
-    ##         "INSERT YOUR CODE HERE"    
-    raise NotImplementedError()
+    '''    
+    ##         Rule 1
+
+    walls_list = []
+    walls_list = warehouse.walls.copy()
+    taboo_list = []
+    for x in range(warehouse.ncols):
+        for y in range(warehouse.nrows):
+            if((x-1, y) in walls_list):
+                    #check left
+                if((x, y-1) in walls_list):
+                    #check top
+                    if((x, y) not in walls_list):
+                        #check not a wall
+                        #print(f"{x} , {y} has wall left and top")
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)):      
+                            taboo_list.append((x,y))
+                #check down
+                if((x, y+1) in walls_list):
+                     if((x, y) not in walls_list):
+                        #check not a wall
+                       if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                            taboo_list.append((x,y))
+
+            if((x + 1, y) in walls_list):
+                #check right
+                if((x, y-1) in walls_list):
+                    #check top
+                    if((x,y) not in walls_list):
+                        #check not a wall
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                            taboo_list.append((x,y))
+                if((x, y+1) in walls_list):
+                    #check down
+                    if((x,y) not in walls_list):
+                        #check not a wall
+                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                            taboo_list.append((x,y))
+    
+    #check for walls between taboo points 
+    taboo_list_copy = taboo_list.copy()
+    for z in taboo_list:
+        for x in taboo_list:
+           if(z[0] == x[0] and z != x):
+               print(f"checking {z} against {x}")
+               l_count = 0
+               r_count = 0
+               d_count = 0
+               u_count = 0
+               
+               for y in range(z[1], x[1]):
+                    #print(f"path ({z[0]},{y})")
+                    #left wall
+                    if((z[0]-1,y) in walls_list):
+                        l_count += 1
+                    #right wall
+                    if((z[0]+1, y) in walls_list):
+                        r_count += 1
+                    if(target_warehouse(warehouse, z[0], y)):
+                        l_count = 0
+                        r_count = 0
+                        print("test")
+                    if(l_count == (x[1]-z[1])):
+                        #print(f"we have a n x between {z} and {x}")
+                        taboo_list_copy = taboo_helper_0(z,x,taboo_list_copy)
+                    if(r_count == (x[1]-z[1])):
+                        taboo_list_copy = taboo_helper_0(z,x,taboo_list_copy)
+           if(z[1] == x[1] and z != x):
+               #print(f"same row {z}, {x}")
+               d_count = 0
+               u_count = 0
+               for y in range(z[0], x[0]):
+                   #print(f"path row ({z[0]},{y})")
+                   #top
+                   if((y, z[1]+1) in walls_list):
+                       u_count += 1
+                   if((y, z[1]-1) in walls_list):
+                       d_count += 1
+                   if(target_warehouse(warehouse, y, z[1])):
+                        u_count = 0
+                        d_count = 0
+                        print("test")
+                   if(d_count == (x[0]-z[0])):
+                        #print(f"we have a n x between {z} and {x}")
+                        taboo_list_copy = taboo_helper_1(z,x,taboo_list_copy)
+                        
+                   if(u_count == (x[0]-z[0])):
+                        #print(f"we have a n x between {z} and {x}")
+                        taboo_list_copy = taboo_helper_1(z,x,taboo_list_copy)
+                       
+            
+
+    ##Do to print new warehouse with taboo cells marked X
+    wh_string = ""
+    warehouse.taboo = taboo_list
+    for z in range(warehouse.nrows):
+        wh_string += "\n"
+        for i in range(warehouse.ncols):
+            if((i, z) in walls_list):
+                wh_string += "#"
+            elif ((i, z) in taboo_list_copy):
+                    wh_string += "X"
+            else:
+                wh_string += " "
+
+                    
+    print(wh_string)
+    print("\n")
+    return(wh_string)    
+def target_warehouse(warehouse,x,y):
+    for i in range(len(warehouse.targets)):
+        if(warehouse.targets[i] == (x, y)):
+            return True
+    return False
+def in_warehouse(warehouse, x, y):
+    rows = warehouse.ncols
+    cols = warehouse.nrows
+
+    wall_up = 0
+    wall_down = 0
+    wall_left = 0
+    wall_right = 0
+
+    for i in range(x, rows):
+        if((i, y) in warehouse.walls):
+             wall_right += 1
+    for i in range(0, x):
+        if((i, y) in warehouse.walls):
+             wall_left += 1
+    for i in range(y, cols):
+        if((x, i) in warehouse.walls):
+             wall_down += 1
+    for i in range(0, y):
+        if((x, i) in warehouse.walls):
+           wall_up += 1
+
+    if(wall_right == 0 or wall_left == 0 or wall_up == 0 or wall_right == 0):
+        return False   
+    return True
+
+def taboo_helper_0(point1, point2, taboo_list):
+     taboo_list_copy = taboo_list.copy()
+     for y in range(point1[1], point2[1]):
+         taboo_list_copy.append((point1[0], y))
+     return taboo_list_copy
+
+def taboo_helper_1(point1, point2, taboo_list):
+    taboo_list_copy = taboo_list.copy()
+    for y in range(point1[0], point2[0]):
+        taboo_list_copy.append((y, point1[1]))
+    return taboo_list_copy
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -326,3 +477,13 @@ def solve_weighted_sokoban(warehouse):
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+if __name__ == "__main__":
+    wh = sokoban.Warehouse();
+    wh.load_warehouse("./warehouses/warehouse_19.txt")
+    print(dir(wh))
+    print(f"cols {wh.ncols}")
+    print(f"rows {wh.nrows}")
+    taboo_cells(wh)
+
+    print(wh)
+    print(target_warehouse(wh, 4, 4))
