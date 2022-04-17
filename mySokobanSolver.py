@@ -43,10 +43,8 @@ def my_team():
     
     '''
 #    return [ (1234567, 'Ada', 'Lovelace'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
- CheckElements
-     return [(10464174, 'Constantine', 'Aspromourgos'), (10748849, 'Calum', 'Hathaway'), (10789511, 'Hari', 'Markonda Patnaikuni')]
+    return [(10464174, 'Constantine', 'Aspromourgos'), (10748849, 'Calum', 'Hathaway'), (10789511, 'Hari', 'Markonda Patnaikuni')]
 
-solve_sokoban
     raise NotImplementedError()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -120,7 +118,6 @@ def taboo_cells(warehouse):
     for z in taboo_list:
         for x in taboo_list:
            if(z[0] == x[0] and z != x):
-               print(f"checking {z} against {x}")
                l_count = 0
                r_count = 0
                d_count = 0
@@ -137,7 +134,6 @@ def taboo_cells(warehouse):
                     if(target_warehouse(warehouse, z[0], y)):
                         l_count = 0
                         r_count = 0
-                        print("test")
                     if(l_count == (x[1]-z[1])):
                         #print(f"we have a n x between {z} and {x}")
                         taboo_list_copy = taboo_helper_0(z,x,taboo_list_copy)
@@ -157,7 +153,7 @@ def taboo_cells(warehouse):
                    if(target_warehouse(warehouse, y, z[1])):
                         u_count = 0
                         d_count = 0
-                        print("test")
+
                    if(d_count == (x[0]-z[0])):
                         #print(f"we have a n x between {z} and {x}")
                         taboo_list_copy = taboo_helper_1(z,x,taboo_list_copy)
@@ -255,13 +251,29 @@ class SokobanPuzzle(search.Problem):
 
     
     def __init__(self, warehouse):
-        raise NotImplementedError()
+        
+        return None
 
-    def actions(self, state):
+    def actions(self, warehouse):
         """
         Return the list of actions that can be executed in the given state.
         
         """
+        worker = warehouse.worker
+        L = []
+        if (worker[0], worker[1]+1) not in warehouse.walls:
+            #down is not a wall
+            L.append("Down")
+        if (worker[0], worker[1]-1) not in warehouse.walls:
+            #up is not a wall
+            L.append("Up")
+        if (worker[0]-1, worker[1]) not in warehouse.walls:
+            #left is not a wall
+            L.append("Left")
+        if (worker[0]+1, worker[1]) not in warehouse.walls:
+            #right is not a wall
+            L.append("Right")
+        return L
         raise NotImplementedError
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -440,12 +452,6 @@ def check_elem_action_seq(warehouse, action_seq):
     output = warehouse.copy(worker, boxes)
     return print(output)
 
-if __name__ == "__main__":
-    wh = sokoban.Warehouse()
-    wh.load_warehouse("./warehouses/warehouse_03.txt")
-    check_elem_action_seq(wh, ['Right','Up', 'Up','Left', 'Left', 'Left', 'Left', 'Left', 'Down'])
-
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_weighted_sokoban(warehouse):
@@ -471,7 +477,9 @@ def solve_weighted_sokoban(warehouse):
             C is the total cost of the action sequence C
 
     '''
+    taboos = taboo_cells(wh)
     
+    return "test"
     raise NotImplementedError()
 
 
@@ -480,10 +488,17 @@ def solve_weighted_sokoban(warehouse):
 if __name__ == "__main__":
     wh = sokoban.Warehouse();
     wh.load_warehouse("./warehouses/warehouse_19.txt")
-    print(dir(wh))
-    print(f"cols {wh.ncols}")
-    print(f"rows {wh.nrows}")
-    taboo_cells(wh)
+    
+    solve_weighted_sokoban(wh)
 
+    print(dir(wh))
+    print(wh.worker)
     print(wh)
-    print(target_warehouse(wh, 4, 4))
+    sokoban = SokobanPuzzle(wh)
+    print(sokoban.actions(wh))
+    # print(f"cols {wh.ncols}")
+    # print(f"rows {wh.nrows}")
+    # taboo_cells(wh)
+
+    # print(wh)
+    # print(target_warehouse(wh, 4, 4))
