@@ -274,7 +274,24 @@ class SokobanPuzzle(search.Problem):
             #right is not a wall
             L.append("Right")
         return L
-        raise NotImplementedError
+
+    def result(self, warehouse, action):
+        cloned_warehouse = warehouse.copy()
+        worker = warehouse.worker
+        if action == "Down":
+            if(action in self.actions(warehouse)):
+                warehouse.worker = (worker[0], worker[1]+1)
+        if action == "Up":
+            if(action in self.actions(warehouse)):
+                warehouse.worker = (worker[0], worker[1]-1)
+        if action == "Left":
+            if(action in self.actions(warehouse)):
+                warehouse.worker = (worker[0]-1, worker[1])
+        if action == "Right":
+            if(action in self.actions(warehouse)):
+                warehouse.worker = (worker[0]+1, worker[1])
+        return warehouse
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -496,6 +513,7 @@ if __name__ == "__main__":
     print(wh)
     sokoban = SokobanPuzzle(wh)
     print(sokoban.actions(wh))
+    print(sokoban.result(wh, "Up"))
     # print(f"cols {wh.ncols}")
     # print(f"rows {wh.nrows}")
     # taboo_cells(wh)
