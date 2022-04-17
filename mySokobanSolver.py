@@ -251,8 +251,9 @@ class SokobanPuzzle(search.Problem):
 
     
     def __init__(self, warehouse):
-        
-        return None
+        copywarehouse = warehouse.copy()
+        copywarehouse.boxes = warehouse.targets
+        self.goal = copywarehouse
 
     def actions(self, warehouse):
         """
@@ -262,22 +263,22 @@ class SokobanPuzzle(search.Problem):
         worker = warehouse.worker
         L = []
 
-        #Case 1 check walls
+        #Case 1 check if not walls around worker
         if (worker[0], worker[1]+1) not in warehouse.walls:
             if not ((worker[0], worker[1]+1) in warehouse.boxes and ((worker[0], worker[1]+1+1) in warehouse.boxes or (worker[0], worker[1]+1+1) in warehouse.walls)):
-            #down is not a wall
+            #Case 2 check if two boxes or box and wall 
                 L.append("Down")
         if (worker[0], worker[1]-1) not in warehouse.walls:
-            #up is not a wall
+           #Case 2 check if two boxes or box and wall 
             if not ((worker[0], worker[1]-1) in warehouse.boxes and ((worker[0], worker[1]-1-1) in warehouse.boxes or (worker[0], worker[1]-1-1) in warehouse.walls)):
                 L.append("Up")
         if (worker[0]-1, worker[1]) not in warehouse.walls:
-            #left is not a wall
+            #Case 2 check if two boxes or box and wall 
             if not ((worker[0]-1, worker[1]) in warehouse.boxes and ((worker[0]-1-1, worker[1]) in warehouse.boxes or (worker[0]-1-1, worker[1]) in warehouse.walls)):
-            #down is not a wall
+            #Case 2 check if two boxes or box and wall 
                 L.append("Left")
         if (worker[0]+1, worker[1]) not in warehouse.walls:
-            #right is not a wall
+            #Case 2 check if two boxes or box and wall 
             if not ((worker[0]+1, worker[1]) in warehouse.boxes and ((worker[0]+1+1, worker[1]) in warehouse.boxes or (worker[0]+1+1, worker[1]) in warehouse.walls)):
                 L.append("Right")
 
@@ -286,6 +287,8 @@ class SokobanPuzzle(search.Problem):
     def result(self, warehouse, action):
         cloned_warehouse = warehouse.copy()
         worker = warehouse.worker
+
+        #Check action then move worker.
         if action == "Down":
             if(action in self.actions(warehouse)):
                 warehouse.worker = (worker[0], worker[1]+1)
