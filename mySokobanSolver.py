@@ -29,10 +29,10 @@ Last modified by 2022-03-27  by f.maire@qut.edu.au
 # You have to make sure that your code works with 
 # the files provided (search.py and sokoban.py) as your code will be tested 
 # with these files
+from os import stat_result
 import re
 import search 
 import sokoban
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -252,80 +252,84 @@ class SokobanPuzzle(search.Problem):
 
     
     def __init__(self, warehouse):
-        copywarehouse = warehouse.copy()
-        copywarehouse.boxes = warehouse.targets
         self.warehouse = warehouse
-        self.initial = warehouse
-        self.goal = copywarehouse
+        self.initial =  warehouse.worker, tuple(warehouse.boxes)
+        self.goal = warehouse.targets
         self.targets = warehouse.targets
         self.weights = warehouse.weights
 
-        
-
+    def goal_test(self, state):
+        """
+        Return True if the state is a goal. 
+        Overide the default method
+        If all the boxes is in the target, return True
+        """
+        return set(self.goal) == set(state[1])
 
     def actions(self, state):
         """
         Return the list of actions that can be executed in the given state.
         
         """
-        worker = state.worker
-        boxes = state.boxes
+        wh = self.warehouse
+        worker = state[0]
+        boxes = state[1]
         L = []
 
         #Case 1 check if not walls around worker
-        if (worker[0], worker[1]+1) not in state.walls:
-            if not ((worker[0], worker[1]+1) in state.boxes and ((worker[0], worker[1]+1+1) in state.boxes or (worker[0], worker[1]+1+1) in state.walls)):
+        if (worker[0], worker[1]+1) not in wh.walls:
+            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+1+1) in boxes or (worker[0], worker[1]+1+1) in wh.walls)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Down")
-        if (worker[0], worker[1]-1) not in state.walls:
+        if (worker[0], worker[1]-1) not in wh.walls:
            #Case 2 check if two boxes or box and wall 
-            if not ((worker[0], worker[1]-1) in state.boxes and ((worker[0], worker[1]-1-1) in state.boxes or (worker[0], worker[1]-1-1) in state.walls)):
+            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-1-1) in boxes or (worker[0], worker[1]-1-1) in wh.walls)):
                 L.append("Up")
-        if (worker[0]-1, worker[1]) not in state.walls:
+        if (worker[0]-1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]-1, worker[1]) in state.boxes and ((worker[0]-1-1, worker[1]) in state.boxes or (worker[0]-1-1, worker[1]) in state.walls)):
+            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-1-1, worker[1]) in boxes or (worker[0]-1-1, worker[1]) in wh.walls)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Left")
-        if (worker[0]+1, worker[1]) not in state.walls:
+        if (worker[0]+1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]+1, worker[1]) in state.boxes and ((worker[0]+1+1, worker[1]) in state.boxes or (worker[0]+1+1, worker[1]) in state.walls)):
+            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls)):
                 L.append("Right")
         return L
-
+ 
     def result(self, state, action):
-        cloned_warehouse = state.copy()
-        worker = state.worker
-        #Check action then move worker.
-        if action == "Down":
-            if(action in self.actions(state)):
-                state.worker = (worker[0], worker[1]+1)
-                #If worker hits box move box
-                if((worker[0], worker[1]+1) in state.boxes):
-                    box_index = state.boxes.index((worker[0], worker[1]+1))
-                    state.boxes[box_index] = (worker[0], worker[1]+1+1)
-        if action == "Up":
-            if(action in self.actions(state)):
-                state.worker = (worker[0], worker[1]-1)
-                 #If worker hits box move box
-                if((worker[0], worker[1]-1) in state.boxes):
-                    box_index = state.boxes.index((worker[0], worker[1]-1))
-                    state.boxes[box_index] = (worker[0], worker[1]-1-1)
-        if action == "Left":
-            if(action in self.actions(state)):
-                state.worker = (worker[0]-1, worker[1])
-                 #If worker hits box move box
-                if((worker[0]-1, worker[1]) in state.boxes):
-                    box_index = state.boxes.index((worker[0]-1, worker[1]))
-                    state.boxes[box_index] = (worker[0]-1-1, worker[1])
-        if action == "Right":
-            if(action in self.actions(state)):
-                state.worker = (worker[0]+1, worker[1])
-                #If worker hits box move box
-                if((worker[0]-1, worker[1]) in state.boxes):
-                    box_index = state.boxes.index((worker[0]+1, worker[1]))
-                    state.boxes[box_index] = (worker[0]+1+1, worker[1])
-        
-        return state
+        """Return the state that results from executing the given
+        action in the given state. The action must be one of
+        self.actions(state)."""
+
+        # make a copy of the state of worker and boxes
+        worker_state = state[0]
+        boxes_state = list(state[1])
+    
+        # assume and calculate the next worker state
+        if (action == "Up"):
+            direction = (0, -1)
+        elif (action == "Down"):
+            direction = (0, 1)
+        elif(action == "Left"):
+            direction = (-1, 0)
+        elif(action == "Right"):
+            direction = (1, 0)
+
+        next_worker_state = (worker_state[0] + direction[0], worker_state[1] + direction[1])
+
+        #Check if there is a box 
+        if next_worker_state in boxes_state:
+
+           #Move box in same direction 
+            next_box_state =  (next_worker_state[0] + direction[0], next_worker_state[1] + direction[1])
+            
+            #Update boxstate
+            box_index = boxes_state.index(next_worker_state)
+            boxes_state[box_index] = next_box_state
+
+        #New State
+        return next_worker_state, tuple(boxes_state)
+    
     def h(self, n):
         '''
         The value of the heurtistic by Taxicab Geometry (Manhattan Distance).
@@ -334,10 +338,10 @@ class SokobanPuzzle(search.Problem):
             - each box to it's nearest target
             - worker to each box.
         '''
-        worker = n.state.worker
-        boxes = n.state.boxes
+        worker = n.state[0]
+        boxes = n.state[1]
         targets = self.targets
-        weights = self.weights
+        
         h = 0
 
         for box in boxes:
@@ -357,6 +361,9 @@ class SokobanPuzzle(search.Problem):
 
         return h
 
+
+
+    
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -530,7 +537,7 @@ def check_elem_action_seq(warehouse, action_seq):
         else:
             return print("Action is invalid.")
 
-    ##         "INSERT YOUR CODE HERE"
+
     worker = (x,y)
     output = warehouse.copy(worker, boxes)
     return print(output)
@@ -567,10 +574,11 @@ def solve_weighted_sokoban(warehouse):
     solution = search.astar_graph_search(my_sokoban)
 
     if solution is None:
-        return 'Impossible', None
+        return "Impossible"
     else:
-        # get one possible action sequence from class Node.solution()
         S = solution.solution()
+        # return solution path. 
+        
 
     return S
 
@@ -579,7 +587,6 @@ def solve_weighted_sokoban(warehouse):
 
 if __name__ == "__main__":
     wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_19.txt")
+    wh.load_warehouse("./warehouses/warehouse_03.txt")
     print(wh)
     print(solve_weighted_sokoban(wh))
-         
