@@ -250,7 +250,7 @@ class SokobanPuzzle(search.Problem):
     #
     #     You are allowed (and encouraged) to use auxiliary functions and classes
 
-    
+
     def __init__(self, warehouse):
         self.warehouse = warehouse
         self.initial =  warehouse.worker, tuple(warehouse.boxes)
@@ -278,30 +278,31 @@ class SokobanPuzzle(search.Problem):
 
         #Case 1 check if not walls around worker
         if (worker[0], worker[1]+1) not in wh.walls:
-            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+1+1) in boxes or (worker[0], worker[1]+1+1) in wh.walls)):
+            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+2) in boxes or (worker[0], worker[1]+2) in wh.walls)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Down")
         if (worker[0], worker[1]-1) not in wh.walls:
            #Case 2 check if two boxes or box and wall 
-            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-1-1) in boxes or (worker[0], worker[1]-1-1) in wh.walls)):
+            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-2) in boxes or (worker[0], worker[1]-2) in wh.walls)):
                 L.append("Up")
         if (worker[0]-1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-1-1, worker[1]) in boxes or (worker[0]-1-1, worker[1]) in wh.walls)):
+            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-2, worker[1]) in boxes or (worker[0]-2, worker[1]) in wh.walls)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Left")
         if (worker[0]+1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls)):
+            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+2, worker[1]) in boxes or (worker[0]+2, worker[1]) in wh.walls)):
                 L.append("Right")
         return L
- 
+
     def result(self, state, action):
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
 
         # make a copy of the state of worker and boxes
+        w=0
         worker_state = state[0]
         boxes_state = list(state[1])
     
@@ -325,11 +326,25 @@ class SokobanPuzzle(search.Problem):
             
             #Update boxstate
             box_index = boxes_state.index(next_worker_state)
+
+            if box_index == 0:
+                w += self.weights[0]
+            if box_index == 1:
+                w += self.weights[1]
+
             boxes_state[box_index] = next_box_state
 
         #New State
-        return next_worker_state, tuple(boxes_state)
+        return next_worker_state, tuple(boxes_state), w
     
+    def path_cost(self, c, state1, action, state2):
+        """Return the cost of a solution path that arrives at state2 from
+        state1 via action, assuming cost c to get up to state1. If the problem
+        is such that the path doesn't matter, this function will only look at
+        state2.  If the path does matter, it will consider c and maybe state1
+        and action. The default method costs 1 for every step in the path."""
+        return c + state2 + 1 
+        
     def h(self, n):
         '''
         The value of the heurtistic by Taxicab Geometry (Manhattan Distance).
@@ -577,16 +592,17 @@ def solve_weighted_sokoban(warehouse):
         return "Impossible"
     else:
         S = solution.solution()
+        C = solution.path_cost
         # return solution path. 
         
 
-    return S
+    return S, C
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
-    wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_03.txt")
+    wh = sokoban.Warehouse()
+    wh.load_warehouse("./warehouses/warehouse_01_a.txt")
     print(wh)
     print(solve_weighted_sokoban(wh))

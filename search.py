@@ -204,7 +204,7 @@ class Problem(object):
         is such that the path doesn't matter, this function will only look at
         state2.  If the path does matter, it will consider c and maybe state1
         and action. The default method costs 1 for every step in the path."""
-        return c + 1
+        return c + 1 
 
     def value(self, state):
         """For optimization problems, each state has a value.  Hill-climbing
@@ -255,7 +255,7 @@ class Node:
         return Node(next_state, # next_state is a state
                     self, # parent is a node
                     action, # from this state to next state 
-                    problem.path_cost(self.path_cost, self.state, action, next_state)
+                    problem.path_cost(self.path_cost, self.state, action, next_state[-1])
                     )
 
     def solution(self):
