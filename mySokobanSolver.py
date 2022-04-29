@@ -254,7 +254,7 @@ class SokobanPuzzle(search.Problem):
     def __init__(self, warehouse):
         self.warehouse = warehouse
         self.initial =  warehouse.worker, tuple(warehouse.boxes)
-        self.taboo = [sokoban.find_2D_iterator(taboo_cells(wh).splitlines(), "X")]
+        self.taboo = list(sokoban.find_2D_iterator(taboo_cells(warehouse).splitlines(), "X"))
         self.goal = warehouse.targets
         self.targets = warehouse.targets
         self.weights = warehouse.weights
@@ -275,33 +275,35 @@ class SokobanPuzzle(search.Problem):
         wh = self.warehouse
         worker = state[0]
         boxes = state[1]
+        taboo = self.taboo
         L = []
 
         #Case 1 check if not walls around worker
         if (worker[0], worker[1]+1) not in wh.walls:
-            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+1+1) in boxes or (worker[0], worker[1]+1+1) in wh.walls)):
+            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+1+1) in boxes or (worker[0], worker[1]+1+1) in wh.walls or (worker[0], worker[1]+1+1) in taboo)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Down")
         if (worker[0], worker[1]-1) not in wh.walls:
            #Case 2 check if two boxes or box and wall 
-            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-1-1) in boxes or (worker[0], worker[1]-1-1) in wh.walls)):
+            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-1-1) in boxes or (worker[0], worker[1]-1-1) in wh.walls or (worker[0], worker[1]-1-1) in taboo)):
                 L.append("Up")
         if (worker[0]-1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-1-1, worker[1]) in boxes or (worker[0]-1-1, worker[1]) in wh.walls)):
+            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-1-1, worker[1]) in boxes or (worker[0]-1-1, worker[1]) in wh.walls or (worker[0]-1-1, worker[1]) in taboo)):
             #Case 2 check if two boxes or box and wall 
                 L.append("Left")
         if (worker[0]+1, worker[1]) not in wh.walls:
             #Case 2 check if two boxes or box and wall 
-            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls)):
+            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls or (worker[0]+1+1, worker[1]) in taboo)):
                 L.append("Right")
         return L
+            
             
     
     def result(self, state, action):
         global iteration
         iteration = iteration + 1
-        print(iteration)
+       # print(iteration)
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
@@ -576,7 +578,6 @@ def solve_weighted_sokoban(warehouse):
     '''
     # new class of SokobanPuzzle 
     my_sokoban = SokobanPuzzle(warehouse)
-    print(my_sokoban.targets)
     # Apply astar_graph_search() to find solution
     solution = search.astar_graph_search(my_sokoban)
     
@@ -592,13 +593,37 @@ def solve_weighted_sokoban(warehouse):
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+def test_solve_weighted_sokoban(warehouse_path, expected_answer, expected_cost):
+    wh = sokoban.Warehouse()    
+    wh.load_warehouse(warehouse_path)
+    # first test
+    answer, cost = solve_weighted_sokoban(wh)
+
+    print('<<  test_solve_weighted_sokoban >>')
+    if answer==expected_answer:
+        print(' Answer as expected!  :-)\n')
+    else:
+        print('unexpected answer!  :-(\n')
+        print('Expected ');print(expected_answer)
+        print('But, received ');print(answer)
+        print('Your answer is different but it might still be correct')
+        print('Check that you pushed the right box onto the left target!')
+    print(f'Your cost = {cost}, expected cost = {expected_cost} \n')
 
 if __name__ == "__main__":
-    wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_47.txt")
-    print(wh.worker)
-    print(taboo_cells(wh))
-    test= list(sokoban.find_2D_iterator(taboo_cells(wh).splitlines(), "X"))
-    print(test)
-   # print(solve_weighted_sokoban(wh))
-    
+   
+    #print(taboo_cells(wh))
+    #print(solve_weighted_sokoban(wh))
+    print("testing warehouse 8a")
+    test_solve_weighted_sokoban("./warehouses/warehouse_8a.txt", ['Up', 'Left', 'Up', 'Left', 'Left', 'Down', 'Left', 'Down', 'Right', 'Right', 'Right', 'Up', 'Up', 'Left', 'Down', 'Right', 'Down', 'Left', 'Left', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right'], 431)
+    print("testing warehouse 09")
+    test_solve_weighted_sokoban("./warehouses/warehouse_09.txt", ['Up', 'Right', 'Right', 'Down', 'Up', 'Left', 'Left', 'Down', 'Right', 'Down', 'Right', 'Left', 'Up', 'Up', 'Right', 'Down', 'Right','Down', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left'] , 396)
+    print("testing warehouse 47")
+    test_solve_weighted_sokoban("./warehouses/warehouse_47.txt", ['Right', 'Right', 'Right', 'Up', 'Up', 'Up', 'Left', 'Left', 'Down', 'Right', 'Right', 'Down', 'Down', 'Left', 'Left', 'Left', 'Left', 'Up',
+'Up', 'Right', 'Right', 'Up', 'Right', 'Right', 'Right', 'Right', 'Down', 'Left', 'Up', 'Left', 'Down', 'Down', 'Up', 'Up', 'Left', 'Left',
+'Down', 'Left', 'Left', 'Down', 'Down', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right', 'Down', 'Right', 'Right', 'Up', 'Left',
+'Left', 'Left', 'Left', 'Left', 'Left', 'Down', 'Left', 'Left', 'Up', 'Up', 'Up', 'Right', 'Right', 'Right', 'Up', 'Right', 'Down', 'Down',
+'Up', 'Left', 'Left', 'Left', 'Left', 'Down', 'Down', 'Down', 'Right', 'Right', 'Up', 'Right', 'Right', 'Left', 'Left', 'Down', 'Left',
+'Left', 'Up', 'Right', 'Right'], 179)
+    print("testing warehouse 5n")
+    test_solve_weighted_sokoban("./warehouses/warehouse_5n.txt", "Impossible", "None")
