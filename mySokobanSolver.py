@@ -610,10 +610,7 @@ def test_solve_weighted_sokoban(warehouse_path, expected_answer, expected_cost):
         print('Check that you pushed the right box onto the left target!')
     print(f'Your cost = {cost}, expected cost = {expected_cost} \n')
 
-if __name__ == "__main__":
-   
-    #print(taboo_cells(wh))
-    #print(solve_weighted_sokoban(wh))
+def unit_tests():
     print("testing warehouse 8a")
     test_solve_weighted_sokoban("./warehouses/warehouse_8a.txt", ['Up', 'Left', 'Up', 'Left', 'Left', 'Down', 'Left', 'Down', 'Right', 'Right', 'Right', 'Up', 'Up', 'Left', 'Down', 'Right', 'Down', 'Left', 'Left', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right'], 431)
     print("testing warehouse 09")
@@ -627,3 +624,10 @@ if __name__ == "__main__":
 'Left', 'Up', 'Right', 'Right'], 179)
     print("testing warehouse 5n")
     test_solve_weighted_sokoban("./warehouses/warehouse_5n.txt", "Impossible", "None")
+    print("finished tests!")
+
+if __name__ == "__main__":
+   
+    #print(taboo_cells(wh))
+    #print(solve_weighted_sokoban(wh))
+    unit_tests()
