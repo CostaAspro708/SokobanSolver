@@ -31,9 +31,10 @@ Last modified by 2022-03-27  by f.maire@qut.edu.au
 # with these files
 from os import stat_result
 import re
+from turtle import distance
 import search 
 import sokoban
-
+iteration = 0
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -169,7 +170,7 @@ def taboo_cells(warehouse):
     wh_string = ""
     warehouse.taboo = taboo_list
     for z in range(warehouse.nrows):
-        wh_string += "\n"
+       
         for i in range(warehouse.ncols):
             if((i, z) in walls_list):
                 wh_string += "#"
@@ -177,10 +178,9 @@ def taboo_cells(warehouse):
                     wh_string += "X"
             else:
                 wh_string += " "
+        wh_string += "\n"
 
                     
-    print(wh_string)
-    print("\n")
     return(wh_string)    
 def target_warehouse(warehouse,x,y):
     for i in range(len(warehouse.targets)):
@@ -254,6 +254,7 @@ class SokobanPuzzle(search.Problem):
     def __init__(self, warehouse):
         self.warehouse = warehouse
         self.initial =  warehouse.worker, tuple(warehouse.boxes)
+        self.taboo = [sokoban.find_2D_iterator(taboo_cells(wh).splitlines(), "X")]
         self.goal = warehouse.targets
         self.targets = warehouse.targets
         self.weights = warehouse.weights
@@ -295,8 +296,12 @@ class SokobanPuzzle(search.Problem):
             if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls)):
                 L.append("Right")
         return L
- 
+            
+    
     def result(self, state, action):
+        global iteration
+        iteration = iteration + 1
+        print(iteration)
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
@@ -329,35 +334,37 @@ class SokobanPuzzle(search.Problem):
 
         #New State
         return next_worker_state, tuple(boxes_state)
-    
+
+    def path_cost(self, c, state1, action, state2):
+
+        if state1[1] != state2[1]: # box is pushed
+            box_index = state1[1].index(state2[0])
+            box_cost = self.weights[box_index]
+            return c + box_cost + 1
+        else: # box is pushed
+            return c + 1
+
     def h(self, n):
         '''
         The value of the heurtistic by Taxicab Geometry (Manhattan Distance).
         
         The sum of the manhattan distance of 
             - each box to it's nearest target
-            - worker to each box.
         '''
-        worker = n.state[0]
         boxes = n.state[1]
         targets = self.targets
         
         h = 0
 
         for box in boxes:
-            total_distance = 0
-
-            asquare = abs(box[0] - worker[0])
-            bsquare = abs(box[1] - worker[1])
-            mann_worker_box_distance = (asquare + bsquare) ** 0.5
-
+            distance = 0
             for target in targets:
                 asquare = abs(box[0] - target[0]) 
                 bsquare = abs(box[1] - target[1])
 
-                mann_target_box_distance = (asquare + bsquare) ** 0.5
-                total_distance += mann_target_box_distance
-            h += (total_distance / len(targets) +(mann_worker_box_distance ** len(targets)))
+                manhattan = (asquare + bsquare) 
+                distance += manhattan
+            h += distance 
 
         return h
 
@@ -569,24 +576,29 @@ def solve_weighted_sokoban(warehouse):
     '''
     # new class of SokobanPuzzle 
     my_sokoban = SokobanPuzzle(warehouse)
-
+    print(my_sokoban.targets)
     # Apply astar_graph_search() to find solution
     solution = search.astar_graph_search(my_sokoban)
-
+    
     if solution is None:
-        return "Impossible"
+        return "Impossible","None"
     else:
         S = solution.solution()
+        C = solution.path_cost
         # return solution path. 
         
 
-    return S
+    return S, C
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__":
     wh = sokoban.Warehouse();
-    wh.load_warehouse("./warehouses/warehouse_03.txt")
-    print(wh)
-    print(solve_weighted_sokoban(wh))
+    wh.load_warehouse("./warehouses/warehouse_47.txt")
+    print(wh.worker)
+    print(taboo_cells(wh))
+    test= list(sokoban.find_2D_iterator(taboo_cells(wh).splitlines(), "X"))
+    print(test)
+   # print(solve_weighted_sokoban(wh))
+    
