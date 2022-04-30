@@ -528,6 +528,12 @@ def solve_weighted_sokoban(warehouse):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import time
 
+def test_check_elem(wh_path, expected_seq):
+    wh = sokoban.Warehouse()
+    wh.load_warehouse(wh_path)
+    solved_seq = check_elem_action_seq(wh,expected_seq)
+    print(solved_seq)
+
 def test_solve_weighted_sokoban(warehouse_path, expected_answer, expected_cost):
     start_time = time.time()
     wh = sokoban.Warehouse()    
@@ -557,9 +563,19 @@ def unit_tests():
 'Left', 'Left', 'Left', 'Left', 'Left', 'Down', 'Left', 'Left', 'Up', 'Up', 'Up', 'Right', 'Right', 'Right', 'Up', 'Right', 'Down', 'Down',
 'Up', 'Left', 'Left', 'Left', 'Left', 'Down', 'Down', 'Down', 'Right', 'Right', 'Up', 'Right', 'Right', 'Left', 'Left', 'Down', 'Left',
 'Left', 'Up', 'Right', 'Right'], 179)
-    print("testing warehouse 5n")
-    test_solve_weighted_sokoban("./warehouses/warehouse_5n.txt", "Impossible", "None")
+    #print("testing warehouse 5n")
+    #test_solve_weighted_sokoban("./warehouses/warehouse_5n.txt", "Impossible", "None")
     #test_solve_weighted_sokoban("./warehouses/warehouse_07.txt", "Impossible", "None")
+
+    print("Testing check_elem_action_seq: will display completed puzzle if valid")
+    test_check_elem("./warehouses/warehouse_47.txt", ['Right', 'Right', 'Right', 'Up', 'Up', 'Up', 'Left', 'Left', 'Down', 'Right', 'Right', 'Down', 'Down', 'Left', 'Left', 'Left', 'Left', 'Up',
+'Up', 'Right', 'Right', 'Up', 'Right', 'Right', 'Right', 'Right', 'Down', 'Left', 'Up', 'Left', 'Down', 'Down', 'Up', 'Up', 'Left', 'Left',
+'Down', 'Left', 'Left', 'Down', 'Down', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right', 'Down', 'Right', 'Right', 'Up', 'Left',
+'Left', 'Left', 'Left', 'Left', 'Left', 'Down', 'Left', 'Left', 'Up', 'Up', 'Up', 'Right', 'Right', 'Right', 'Up', 'Right', 'Down', 'Down',
+'Up', 'Left', 'Left', 'Left', 'Left', 'Down', 'Down', 'Down', 'Right', 'Right', 'Up', 'Right', 'Right', 'Left', 'Left', 'Down', 'Left',
+'Left', 'Up', 'Right', 'Right'])
+    test_check_elem("./warehouses/warehouse_8a.txt", ['Up', 'Left', 'Up', 'Left', 'Left', 'Down', 'Left', 'Down', 'Right', 'Right', 'Right', 'Up', 'Up', 'Left', 'Down', 'Right', 'Down', 'Left', 'Left', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right', 'Right'])
+    test_check_elem("./warehouses/warehouse_09.txt", ['Up', 'Right', 'Right', 'Down', 'Up', 'Left', 'Left', 'Down', 'Right', 'Down', 'Right', 'Left', 'Up', 'Up', 'Right', 'Down', 'Right','Down', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left'])
     print("finished tests!")
 
 if __name__ == "__main__":
@@ -569,7 +585,7 @@ if __name__ == "__main__":
     # tester  = inside_wh(wh)
     # for i in range(len(tester)):
     #     print(in_warehouse(wh, tester[i][0], tester[i][1]))
-    # #unit_tests()
+    unit_tests()
     # start_time = time.time()
     # print(solve_weighted_sokoban(wh))
     # print("--- finished in %s seconds --- \n" % (time.time() - start_time))
