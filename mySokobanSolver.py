@@ -33,6 +33,7 @@ from array import array
 from cgi import test
 from os import stat_result
 import re
+from tabnanny import check
 from tkinter import N
 from turtle import distance
 import search 
@@ -416,6 +417,34 @@ class SokobanPuzzle(search.Problem):
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+def actions_seq(wh, state):
+        """
+        Return the list of actions that can be executed in the given state.
+        
+        """
+        worker = state[0]
+        boxes = state[1]
+        L = []
+
+        #Case 1 check if not walls around worker
+        if (worker[0], worker[1]+1) not in wh.walls:
+            if not ((worker[0], worker[1]+1) in boxes and ((worker[0], worker[1]+1+1) in boxes or (worker[0], worker[1]+1+1) in wh.walls)):
+            #Case 2 check if two boxes or box and wall 
+                L.append("Down")
+        if (worker[0], worker[1]-1) not in wh.walls:
+           #Case 2 check if two boxes or box and wall 
+            if not ((worker[0], worker[1]-1) in boxes and ((worker[0], worker[1]-1-1) in boxes or (worker[0], worker[1]-1-1) in wh.walls)):
+                L.append("Up")
+        if (worker[0]-1, worker[1]) not in wh.walls:
+            #Case 2 check if two boxes or box and wall 
+            if not ((worker[0]-1, worker[1]) in boxes and ((worker[0]-1-1, worker[1]) in boxes or (worker[0]-1-1, worker[1]) in wh.walls)):
+            #Case 2 check if two boxes or box and wall 
+                L.append("Left")
+        if (worker[0]+1, worker[1]) not in wh.walls:
+            #Case 2 check if two boxes or box and wall 
+            if not ((worker[0]+1, worker[1]) in boxes and ((worker[0]+1+1, worker[1]) in boxes or (worker[0]+1+1, worker[1]) in wh.walls)):
+                L.append("Right")
+        return L
 
 def check_elem_action_seq(warehouse, action_seq):
     '''
@@ -440,9 +469,20 @@ def check_elem_action_seq(warehouse, action_seq):
                the sequence of actions.  This must be the same string as the
                string returned by the method  Warehouse.__str__()
     '''
-    return
-
+    check_seq = SokobanPuzzle(warehouse)
+    state = check_seq.initial
     
+    for action in action_seq:
+
+        if(action not in actions_seq(warehouse,state)):
+            return 'Impossible'
+        state = check_seq.result(state, action)
+    
+    warehouse.worker = state[0]
+    warehouse.boxes = state[1]
+
+    return warehouse.__str__()
+     
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -524,8 +564,8 @@ def unit_tests():
 
 if __name__ == "__main__":
     wh = sokoban.Warehouse()    
-    wh.load_warehouse("./warehouses/warehouse_33.txt")
-    print(taboo_cells(wh))
+    wh.load_warehouse("./warehouses/warehouse_09.txt")
+    #print(taboo_cells(wh))
     # tester  = inside_wh(wh)
     # for i in range(len(tester)):
     #     print(in_warehouse(wh, tester[i][0], tester[i][1]))
@@ -533,3 +573,5 @@ if __name__ == "__main__":
     # start_time = time.time()
     # print(solve_weighted_sokoban(wh))
     # print("--- finished in %s seconds --- \n" % (time.time() - start_time))
+    print(check_elem_action_seq(wh, ['Up', 'Right', 'Right', 'Down', 'Up', 'Left', 'Left', 'Down', 'Right', 'Down', 'Right', 'Left', 'Up', 'Up', 'Right', 'Down', 'Right',
+'Down', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left', 'Down', 'Left', 'Up', 'Right', 'Up', 'Left']  ))
