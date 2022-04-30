@@ -29,8 +29,11 @@ Last modified by 2022-03-27  by f.maire@qut.edu.au
 # You have to make sure that your code works with 
 # the files provided (search.py and sokoban.py) as your code will be tested 
 # with these files
+from array import array
+from cgi import test
 from os import stat_result
 import re
+from tkinter import N
 from turtle import distance
 import search 
 import sokoban
@@ -50,7 +53,76 @@ def my_team():
     raise NotImplementedError()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+def validCoord(x, y, n, m):
+    if x < 0 or y < 0:
+        return 0
+    if x >= n or y >= m:
+        return 0
+    return 1
 
+def inside_wh(wh):
+
+    worker = wh.worker
+    n = wh.nrows
+    m = wh.ncols
+    array_wh = [[0 for i in range(n)] for j in range(m)]
+    for z in range(n):
+       
+        for i in range(m):
+            if((i, z) in wh.walls):
+                array_wh[i][z] = "#"
+            elif ((i, z) == wh.worker):
+                    array_wh[i][z] = "@"
+            else:
+                array_wh[i][z] = " "
+    
+    # Visiting array
+    vis = [[0 for i in range(n)] for j in range(m)]
+  
+
+
+    # Creating queue for bfs
+    obj = []
+    # Pushing pair of {x, y}
+    X = worker[0]
+    Y = worker[1]
+    obj.append([X ,Y])
+
+    # Marking {x, y} as visited
+   
+    in_wh = []
+    in_wh.append(worker)
+    # Until queue is empty
+    while len(obj) > 0:
+
+        # Extracting front pair
+        coord = obj[0]
+        x = coord[0]
+        y = coord[1]
+
+        # Popping front pair of queue
+        obj.pop(0)
+
+        # For Upside Pixel or Cell
+        if validCoord(x + 1, y, n, m) == 1 and (x+1, y) not in in_wh and array_wh[x + 1][y] != "#":
+            obj.append([x + 1, y])
+            in_wh.append((x+1, y))
+
+        # For Downside Pixel or Cell
+        if validCoord(x - 1, y, n, m) == 1 and (x-1, y) not in in_wh and array_wh[x - 1][y] != "#":
+            obj.append([x - 1, y])
+            in_wh.append((x-1, y))
+       
+        # For Right side Pixel or Cell
+        if validCoord(x, y + 1, n, m) == 1 and (x, y+1) not in in_wh and array_wh[x][y + 1] != "#":
+            obj.append([x, y + 1])
+            in_wh.append((x, y+1))
+       
+        # For Left side Pixel or Cell
+        if validCoord(x, y - 1, n, m) == 1 and (x, y-1) not in in_wh and array_wh[x][y - 1] != "#":
+            obj.append([x, y - 1])
+            in_wh.append((x, y-1))
+    return tuple(in_wh)
 
 def taboo_cells(warehouse):
     '''  
@@ -79,6 +151,9 @@ def taboo_cells(warehouse):
     '''    
     ##         Rule 1
 
+    inside_warehouse = inside_wh(warehouse)
+
+
     walls_list = []
     walls_list = warehouse.walls.copy()
     taboo_list = []
@@ -91,13 +166,13 @@ def taboo_cells(warehouse):
                     if((x, y) not in walls_list):
                         #check not a wall
                         #print(f"{x} , {y} has wall left and top")
-                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)):      
+                        if((x,y) in inside_warehouse and (x, y) not in warehouse.targets):      
                             taboo_list.append((x,y))
                 #check down
                 if((x, y+1) in walls_list):
                      if((x, y) not in walls_list):
                         #check not a wall
-                       if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                       if((x,y) in inside_warehouse and (x, y) not in warehouse.targets):      
                             taboo_list.append((x,y))
 
             if((x + 1, y) in walls_list):
@@ -106,13 +181,13 @@ def taboo_cells(warehouse):
                     #check top
                     if((x,y) not in walls_list):
                         #check not a wall
-                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                        if((x,y) in inside_warehouse and (x, y) not in warehouse.targets): 
                             taboo_list.append((x,y))
                 if((x, y+1) in walls_list):
                     #check down
                     if((x,y) not in walls_list):
                         #check not a wall
-                        if(in_warehouse(warehouse,x,y) and not target_warehouse(warehouse,x,y)): 
+                        if((x,y) in inside_warehouse and (x, y) not in warehouse.targets): 
                             taboo_list.append((x,y))
     
     #check for walls between taboo points 
@@ -133,7 +208,7 @@ def taboo_cells(warehouse):
                     #right wall
                     if((z[0]+1, y) in walls_list):
                         r_count += 1
-                    if(target_warehouse(warehouse, z[0], y)):
+                    if((z[0], y) in warehouse.targets):
                         l_count = 0
                         r_count = 0
                     if(l_count == (x[1]-z[1])):
@@ -152,7 +227,7 @@ def taboo_cells(warehouse):
                        u_count += 1
                    if((y, z[1]-1) in walls_list):
                        d_count += 1
-                   if(target_warehouse(warehouse, y, z[1])):
+                   if((y, z[1] in warehouse.targets)):
                         u_count = 0
                         d_count = 0
 
@@ -182,36 +257,6 @@ def taboo_cells(warehouse):
 
                     
     return(wh_string)    
-def target_warehouse(warehouse,x,y):
-    for i in range(len(warehouse.targets)):
-        if(warehouse.targets[i] == (x, y)):
-            return True
-    return False
-def in_warehouse(warehouse, x, y):
-    rows = warehouse.ncols
-    cols = warehouse.nrows
-
-    wall_up = 0
-    wall_down = 0
-    wall_left = 0
-    wall_right = 0
-
-    for i in range(x, rows):
-        if((i, y) in warehouse.walls):
-             wall_right += 1
-    for i in range(0, x):
-        if((i, y) in warehouse.walls):
-             wall_left += 1
-    for i in range(y, cols):
-        if((x, i) in warehouse.walls):
-             wall_down += 1
-    for i in range(0, y):
-        if((x, i) in warehouse.walls):
-           wall_up += 1
-
-    if(wall_right == 0 or wall_left == 0 or wall_up == 0 or wall_right == 0):
-        return False   
-    return True
 
 def taboo_helper_0(point1, point2, taboo_list):
      taboo_list_copy = taboo_list.copy()
@@ -303,7 +348,7 @@ class SokobanPuzzle(search.Problem):
     def result(self, state, action):
         global iteration
         iteration = iteration + 1
-       # print(iteration)
+        #print(iteration)
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
@@ -322,20 +367,20 @@ class SokobanPuzzle(search.Problem):
         elif(action == "Right"):
             direction = (1, 0)
 
-        next_worker_state = (worker_state[0] + direction[0], worker_state[1] + direction[1])
+        worker_state = (worker_state[0] + direction[0], worker_state[1] + direction[1])
 
         #Check if there is a box 
-        if next_worker_state in boxes_state:
+        if worker_state in boxes_state:
 
            #Move box in same direction 
-            next_box_state =  (next_worker_state[0] + direction[0], next_worker_state[1] + direction[1])
+            next_box_state =  (worker_state[0] + direction[0], worker_state[1] + direction[1])
             
             #Update boxstate
-            box_index = boxes_state.index(next_worker_state)
+            box_index = boxes_state.index(worker_state)
             boxes_state[box_index] = next_box_state
 
         #New State
-        return next_worker_state, tuple(boxes_state)
+        return worker_state, tuple(boxes_state)
 
     def path_cost(self, c, state1, action, state2):
 
@@ -346,14 +391,14 @@ class SokobanPuzzle(search.Problem):
         else: # box is pushed
             return c + 1
 
-    def h(self, n):
+    def h(self, node):
         '''
         The value of the heurtistic by Taxicab Geometry (Manhattan Distance).
         
         The sum of the manhattan distance of 
             - each box to it's nearest target
         '''
-        boxes = n.state[1]
+        boxes = node.state[1]
         targets = self.targets
         
         h = 0
@@ -361,12 +406,12 @@ class SokobanPuzzle(search.Problem):
         for box in boxes:
             distance = 0
             for target in targets:
-                asquare = abs(box[0] - target[0]) 
-                bsquare = abs(box[1] - target[1])
+                a = abs(box[0] - target[0]) 
+                b = abs(box[1] - target[1])
 
-                manhattan = (asquare + bsquare) 
+                manhattan = (a + b) 
                 distance += manhattan
-            h += distance 
+            h += distance
 
         return h
 
@@ -593,22 +638,24 @@ def solve_weighted_sokoban(warehouse):
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import time
+
 def test_solve_weighted_sokoban(warehouse_path, expected_answer, expected_cost):
+    start_time = time.time()
     wh = sokoban.Warehouse()    
     wh.load_warehouse(warehouse_path)
-    # first test
     answer, cost = solve_weighted_sokoban(wh)
-
     print('<<  test_solve_weighted_sokoban >>')
     if answer==expected_answer:
-        print(' Answer as expected!  :-)\n')
+        print(' Answer as expected!  :-)')
     else:
         print('unexpected answer!  :-(\n')
         print('Expected ');print(expected_answer)
         print('But, received ');print(answer)
         print('Your answer is different but it might still be correct')
         print('Check that you pushed the right box onto the left target!')
-    print(f'Your cost = {cost}, expected cost = {expected_cost} \n')
+    print(f'Your cost = {cost}, expected cost = {expected_cost}')
+    print("--- finished in %s seconds --- \n" % (time.time() - start_time))
 
 def unit_tests():
     print("testing warehouse 8a")
@@ -624,10 +671,17 @@ def unit_tests():
 'Left', 'Up', 'Right', 'Right'], 179)
     print("testing warehouse 5n")
     test_solve_weighted_sokoban("./warehouses/warehouse_5n.txt", "Impossible", "None")
+    #test_solve_weighted_sokoban("./warehouses/warehouse_07.txt", "Impossible", "None")
     print("finished tests!")
 
 if __name__ == "__main__":
-   
-    #print(taboo_cells(wh))
-    #print(solve_weighted_sokoban(wh))
-    unit_tests()
+    wh = sokoban.Warehouse()    
+    wh.load_warehouse("./warehouses/warehouse_33.txt")
+    print(taboo_cells(wh))
+    # tester  = inside_wh(wh)
+    # for i in range(len(tester)):
+    #     print(in_warehouse(wh, tester[i][0], tester[i][1]))
+    # #unit_tests()
+    # start_time = time.time()
+    # print(solve_weighted_sokoban(wh))
+    # print("--- finished in %s seconds --- \n" % (time.time() - start_time))
