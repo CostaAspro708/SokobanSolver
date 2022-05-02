@@ -35,8 +35,7 @@ def my_team():
     
     '''
 #    return [ (1234567, 'Ada', 'Lovelace'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
-    return [(10464174, 'Constantine', 'Aspromourgos')]
-    raise NotImplementedError()
+    return [(10464174, 'Constantine', 'Aspromourgos'), (10748849, 'Calum', 'Hathaway'), (10789511, 'Yedukondalu Alias Rasavihari', 'Markonda Patnaikuni')]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -167,7 +166,9 @@ def taboo_cells(warehouse):
                     wh_string += "X"
             else:
                 wh_string += " "
-        wh_string += "\n"
+        if z != warehouse.nrows - 1:
+            wh_string += "\n"
+
 
                     
 
@@ -341,7 +342,7 @@ class SokobanPuzzle(search.Problem):
                 cost = abs(box[0] - target[0]) + abs(box[1] - target[1]) * (weights[idx] + 1)
                 if cost < min:
                     min = cost
-            heuristic += distance_to_worker
+ 
             heuristic += min
         return heuristic
 
@@ -509,11 +510,11 @@ def test_solve_weighted_sokoban(warehouse_path, expected_answer, expected_cost):
 
 def solve_unit_tests():
     print("Test taboo_cells")
-    test_taboo("./warehouses/warehouse_8a.txt", "   ######    \n###XXXXXX### \n#X         X#\n#X          #\n############ \n")
-    test_taboo("./warehouses/warehouse_09.txt", "##### \n#  X##\n#X  X#\n##X  #\n ##X #\n  ## #\n   ###\n")
-    test_taboo("./warehouses/warehouse_47.txt", "  #######  \n###XXXXX#  \n#X     X#  \n#X### #####\n#X       X#\n#XXX###XXX#\n#####X#####\n")
-    test_taboo("./warehouses/warehouse_81.txt", " #####\n #XXX#\n #  X#\n##  X#\n#X  ##\n#X  ##\n##  X#\n #XXX#\n #####\n")
-    test_taboo("./warehouses/warehouse_5n.txt", " #### #### \n##XX###XX##\n#X  #X#  X#\n#X       X#\n###     ###\n #XXXXXXX# \n###########\n")
+    test_taboo("./warehouses/warehouse_8a.txt", "   ######    \n###XXXXXX### \n#X         X#\n#X          #\n############ ")
+    test_taboo("./warehouses/warehouse_09.txt", "##### \n#  X##\n#X  X#\n##X  #\n ##X #\n  ## #\n   ###")
+    test_taboo("./warehouses/warehouse_47.txt", "  #######  \n###XXXXX#  \n#X     X#  \n#X### #####\n#X       X#\n#XXX###XXX#\n#####X#####")
+    test_taboo("./warehouses/warehouse_81.txt", " #####\n #XXX#\n #  X#\n##  X#\n#X  ##\n#X  ##\n##  X#\n #XXX#\n #####")
+    test_taboo("./warehouses/warehouse_5n.txt", " #### #### \n##XX###XX##\n#X  #X#  X#\n#X       X#\n###     ###\n #XXXXXXX# \n###########")
 
     
     print("Testing check_elem_action_seq\n")
