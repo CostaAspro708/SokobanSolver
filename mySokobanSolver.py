@@ -343,7 +343,7 @@ class SokobanPuzzle(search.Problem):
                 if cost < min:
                     min = cost
  
-            heuristic += min
+            heuristic += min 
         return heuristic
 
 
